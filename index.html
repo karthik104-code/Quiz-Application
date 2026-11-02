@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application — Christ College of Engineering (Group 12)</title>
+    <meta name="description" content="A Java Swing and Web-Based Multiple-Choice Quiz System for OOP Lab at Christ College of Engineering, Thrissur.">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.85);
+            --bg-card-light: #28354c;
+            --border-card: rgba(51, 65, 85, 0.8);
+            --border-active: #6366f1;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-grad-end: #a855f7;
+            --option-default: rgba(24, 33, 47, 0.9);
+            --option-hover: rgba(37, 49, 72, 0.95);
+            --option-selected: rgba(30, 58, 138, 0.55);
+            --option-border-sel: #818cf8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --gold: #fbbf24;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #a5b4fc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Effect */
+        .ambient-glow {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top Header */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+        }
+
+        .header-brand h1 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-accent);
+            text-transform: uppercase;
+        }
+
+        .header-brand p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .badge-group {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--accent-primary);
+            color: var(--text-primary);
+            padding: 0.35rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* Main Container */
+        main {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 2rem 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            width: 100%;
+            max-width: 760px;
+            padding: 2.25rem;
+            animation: fadeIn 0.35s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Screen 1: Welcome */
+        .welcome-content {
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.4rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .pills-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .pill {
+            background: var(--bg-card-light);
+            border: 1px solid var(--border-card);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+        }
+
+        .input-group {
+            margin: 0 auto 1.5rem auto;
+            max-width: 380px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-card);
+            background: var(--bg-card-light);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .name-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .name-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            background: linear-gradient(135deg, #4f46e5, #9333ea);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card-light);
+            border: 1px solid var(--border-card);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(51, 65, 85, 0.8);
+            border-color: var(--accent-primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #16a34a, #059669);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            background: #ef4444;
+        }
+
+        /* Screen 2: Quiz */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .candidate-tag {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-box {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .progress-bar-track {
+            width: 160px;
+            height: 10px;
+            background: var(--bg-card-light);
+            border: 1px solid var(--border-card);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 10%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-grad-end));
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-accent);
+        }
+
+        .question-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .question-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-accent);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .question-prompt {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.25rem;
+            background: var(--option-default);
+            border: 1.5px solid var(--border-card);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .option-item:hover {
+            background: var(--option-hover);
+            border-color: var(--accent-secondary);
+            transform: translateX(4px);
+        }
+
+        .option-item.selected {
+            background: var(--option-selected);
+            border-color: var(--option-border-sel);
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .option-left {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .option-badge {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .option-item.selected .option-badge {
+            background: var(--accent-primary);
+        }
+
+        .option-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .radio-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border-card);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .option-item.selected .radio-dot {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary);
+            box-shadow: inset 0 0 0 3px #ffffff;
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hint-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Screen 3: Result */
+        .result-content {
+            text-align: center;
+        }
+
+        .completion-badge {
+            display: inline-block;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.35rem 1rem;
+            border-radius: 999px;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.85rem;
+        }
+
+        .result-greeting {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .result-feedback {
+            font-size: 0.95rem;
+            color: var(--text-accent);
+            margin-bottom: 1.75rem;
+        }
+
+        .scores-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            max-width: 440px;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .score-box {
+            background: var(--bg-card-light);
+            border: 1px solid var(--border-active);
+            border-radius: 16px;
+            padding: 1.25rem 1rem;
+        }
+
+        .score-box.pct {
+            border-color: var(--accent-purple);
+        }
+
+        .score-box-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .score-box-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .score-box.pct .score-box-value {
+            color: var(--success);
+        }
+
+        .stats-pills {
+            display: flex;
+            justify-content: center;
+            gap: 0.85rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.35rem 0.85rem;
+            border-radius: 8px;
+            background: var(--bg-card-light);
+            border: 1px solid var(--border-card);
+        }
+
+        .stat-pill.correct {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .stat-pill.incorrect {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Modal Dialogs */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(2, 6, 23, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid var(--border-active);
+            border-radius: 20px;
+            max-width: 580px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            animation: modalPop 0.25s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-accent);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(51, 65, 85, 0.6);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Team Table */
+        .team-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .team-reg {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Review List */
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .review-item {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--border-card);
+        }
+
+        .review-item.correct {
+            border-color: var(--success);
+        }
+
+        .review-item.incorrect {
+            border-color: var(--danger);
+        }
+
+        .review-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .review-item-header .qnum {
+            color: var(--text-accent);
+        }
+
+        .review-item-header .qstatus.correct {
+            color: var(--success);
+        }
+
+        .review-item-header .qstatus.incorrect {
+            color: var(--danger);
+        }
+
+        .review-item-prompt {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .review-ans {
+            font-size: 0.825rem;
+            margin-top: 0.25rem;
+        }
+
+        .review-ans.user-ans.correct {
+            color: var(--success);
+        }
+
+        .review-ans.user-ans.incorrect {
+            color: var(--danger);
+        }
+
+        .review-ans.correct-ans {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Bottom Footer */
+        footer {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(51, 65, 85, 0.4);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+        }
+
+        /* Alert Toast */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: #1e293b;
+            border: 1.5px solid var(--gold);
+            color: var(--text-primary);
+            padding: 0.9rem 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 200;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 640px) {
+            header, footer { padding: 1rem; }
+            .card { padding: 1.5rem; }
+            .scores-grid { grid-template-columns: 1fr; }
+            .quiz-footer { flex-direction: column; gap: 1rem; align-items: stretch; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+
+    <!-- Top Header -->
+    <header>
+        <div class="header-brand">
+            <h1>Christ College of Engineering, Thrissur</h1>
+            <p>Department of Computer Science & Engineering | OOP Lab Mini Project</p>
+        </div>
+        <div class="badge-group">GROUP 12</div>
+    </header>
+
+    <!-- Main Container -->
+    <main>
+        <!-- SCREEN 1: WELCOME -->
+        <div id="screen-welcome" class="card">
+            <div class="welcome-content">
+                <h2 class="welcome-title">QUIZ APPLICATION</h2>
+                <p class="welcome-subtitle">A Java Swing and Web-Based Multiple-Choice Quiz System</p>
+                <div class="pills-row">
+                    <span class="pill">10 Questions</span>
+                    <span class="pill">OOP & Core Java</span>
+                    <span class="pill">Instant Evaluation</span>
+                </div>
+                <div class="input-group">
+                    <label for="player-name" class="input-label">Enter Player Name to Begin:</label>
+                    <input type="text" id="player-name" class="name-input" placeholder="e.g. C S Karthik" autocomplete="off" autofocus>
+                </div>
+                <button id="btn-start" class="btn btn-primary" style="min-width: 240px;">
+                    Start Quiz &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: QUIZ -->
+        <div id="screen-quiz" class="card" style="display: none;">
+            <div class="quiz-header">
+                <div id="candidate-display" class="candidate-tag">Candidate: Anonymous</div>
+                <div class="progress-box">
+                    <div class="progress-bar-track">
+                        <div id="progress-fill" class="progress-bar-fill"></div>
+                    </div>
+                    <span id="progress-text" class="progress-text">1 / 10</span>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div id="q-tag" class="question-tag">QUESTION 01 OF 10</div>
+                <div id="q-prompt" class="question-prompt">Loading question...</div>
+            </div>
+
+            <div id="options-container" class="options-list">
+                <!-- 4 Options populated via JavaScript -->
+            </div>
+
+            <div class="quiz-footer">
+                <div class="hint-text">Tip: Select one option and click Next to continue.</div>
+                <button id="btn-next" class="btn btn-primary" style="min-width: 180px;">
+                    Next Question &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESULT -->
+        <div id="screen-result" class="card" style="display: none;">
+            <div class="result-content">
+                <div class="completion-badge">&#9733; QUIZ COMPLETED &#9733;</div>
+                <h2 id="result-greeting" class="result-greeting">Well done!</h2>
+                <p id="result-feedback" class="result-feedback">Calculating feedback...</p>
+
+                <div class="scores-grid">
+                    <div class="score-box">
+                        <div class="score-box-title">FINAL SCORE</div>
+                        <div id="score-val" class="score-box-value">0 / 10</div>
+                    </div>
+                    <div class="score-box pct">
+                        <div class="score-box-title">PERCENTAGE</div>
+                        <div id="pct-val" class="score-box-value">0%</div>
+                    </div>
+                </div>
+
+                <div class="stats-pills">
+                    <span class="stat-pill">Total: 10</span>
+                    <span id="stat-correct" class="stat-pill correct">Correct: 0</span>
+                    <span id="stat-incorrect" class="stat-pill incorrect">Incorrect: 0</span>
+                </div>
+
+                <div class="result-actions">
+                    <button id="btn-review" class="btn btn-secondary">Review Answers</button>
+                    <button id="btn-restart" class="btn btn-success">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Footer -->
+    <footer>
+        <div>Christ College of Engineering &bull; Department of CSE &bull; 2026</div>
+        <button id="btn-team" class="btn btn-secondary" style="padding: 0.4rem 0.9rem; font-size: 0.8rem;">
+            Project Team (Group 12)
+        </button>
+    </footer>
+
+    <!-- Team Modal -->
+    <div id="modal-team" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>OOP Lab Mini Project &bull; Group 12</h3>
+                <button class="btn btn-secondary close-modal" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="team-grid">
+                    <div class="team-row"><span class="team-name">C S Karthik</span><span class="team-reg">CCE25CS104</span></div>
+                    <div class="team-row"><span class="team-name">Baby Ashna P V</span><span class="team-reg">CCE25CS087</span></div>
+                    <div class="team-row"><span class="team-name">Antony Raj</span><span class="team-reg">CCE25CS068</span></div>
+                    <div class="team-row"><span class="team-name">Aswathy MS</span><span class="team-reg">CCE25CS082</span></div>
+                    <div class="team-row"><span class="team-name">Devika MN</span><span class="team-reg">CCE25CS105</span></div>
+                    <div class="team-row"><span class="team-name">Aswin Salish</span><span class="team-reg">CCE25CS083</span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal" style="padding: 0.5rem 1.25rem;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Answers Modal -->
+    <div id="modal-review" class="modal-overlay">
+        <div class="modal-card" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3>Detailed Question-by-Question Review</h3>
+                <button class="btn btn-secondary close-modal" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="review-list" class="review-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary close-modal" style="padding: 0.5rem 1.25rem;">Close Review</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Warning -->
+    <div id="toast" class="toast">
+        <span style="color: var(--gold); font-size: 1.1rem;">&#9888;</span>
+        <span id="toast-msg">Alert message</span>
+    </div>
+
+    <script>
+        // --- Questions Bank (Matches Java Quiz.java exactly) ---
+        const questions = [
+            {
+                text: "Which keyword is used to create an object in Java?",
+                options: ["class", "new", "this", "void"],
+                correct: 1
+            },
+            {
+                text: "Which concept allows a class to acquire properties of another class?",
+                options: ["Encapsulation", "Polymorphism", "Inheritance", "Abstraction"],
+                correct: 2
+            },
+            {
+                text: "Which method is the entry point of a Java application?",
+                options: ["start()", "run()", "main()", "init()"],
+                correct: 2
+            },
+            {
+                text: "Which of these is not a primitive data type in Java?",
+                options: ["int", "boolean", "String", "char"],
+                correct: 2
+            },
+            {
+                text: "Which access modifier makes a member accessible from anywhere?",
+                options: ["private", "protected", "default", "public"],
+                correct: 3
+            },
+            {
+                text: "What is the process of hiding data using private fields and methods called?",
+                options: ["Inheritance", "Encapsulation", "Compilation", "Overloading"],
+                correct: 1
+            },
+            {
+                text: "Which keyword is used to inherit a class?",
+                options: ["implements", "extends", "inherits", "super"],
+                correct: 1
+            },
+            {
+                text: "Which feature means one name can have many forms?",
+                options: ["Polymorphism", "Abstraction", "Encapsulation", "Package"],
+                correct: 0
+            },
+            {
+                text: "Which block is commonly used to handle an exception?",
+                options: ["check-catch", "try-catch", "do-catch", "if-else"],
+                correct: 1
+            },
+            {
+                text: "Which collection does not allow duplicate elements?",
+                options: ["ArrayList", "LinkedList", "HashSet", "Vector"],
+                correct: 2
+            }
+        ];
+
+        // --- Application State ---
+        let playerName = "";
+        let currentIndex = 0;
+        let selectedOption = -1;
+        let score = 0;
+        let userAnswers = new Array(questions.length).fill(-1);
+
+        // --- DOM Elements ---
+        const screenWelcome = document.getElementById("screen-welcome");
+        const screenQuiz = document.getElementById("screen-quiz");
+        const screenResult = document.getElementById("screen-result");
+
+        const playerNameInput = document.getElementById("player-name");
+        const btnStart = document.getElementById("btn-start");
+        const candidateDisplay = document.getElementById("candidate-display");
+        const progressFill = document.getElementById("progress-fill");
+        const progressText = document.getElementById("progress-text");
+        const qTag = document.getElementById("q-tag");
+        const qPrompt = document.getElementById("q-prompt");
+        const optionsContainer = document.getElementById("options-container");
+        const btnNext = document.getElementById("btn-next");
+
+        const resultGreeting = document.getElementById("result-greeting");
+        const resultFeedback = document.getElementById("result-feedback");
+        const scoreVal = document.getElementById("score-val");
+        const pctVal = document.getElementById("pct-val");
+        const statCorrect = document.getElementById("stat-correct");
+        const statIncorrect = document.getElementById("stat-incorrect");
+        const btnReview = document.getElementById("btn-review");
+        const btnRestart = document.getElementById("btn-restart");
+
+        const modalTeam = document.getElementById("modal-team");
+        const modalReview = document.getElementById("modal-review");
+        const reviewList = document.getElementById("review-list");
+        const btnTeam = document.getElementById("btn-team");
+        const toast = document.getElementById("toast");
+        const toastMsg = document.getElementById("toast-msg");
+
+        // --- Toast Notification ---
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.add("active");
+            setTimeout(() => toast.classList.remove("active"), 3200);
+        }
+
+        // --- Start Quiz ---
+        btnStart.addEventListener("click", startQuiz);
+        playerNameInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") startQuiz();
+        });
+
+        function startQuiz() {
+            const name = playerNameInput.value.trim();
+            if (!name) {
+                showToast("Please enter your name before starting the quiz.");
+                playerNameInput.focus();
+                return;
+            }
+            playerName = name;
+            candidateDisplay.textContent = `Candidate: ${playerName}`;
+            currentIndex = 0;
+            score = 0;
+            userAnswers.fill(-1);
+
+            screenWelcome.style.display = "none";
+            screenResult.style.display = "none";
+            screenQuiz.style.display = "block";
+            loadQuestion();
+        }
+
+        // --- Load Question ---
+        function loadQuestion() {
+            selectedOption = -1;
+            const q = questions[currentIndex];
+            const currentNum = currentIndex + 1;
+            const total = questions.length;
+
+            qTag.textContent = `QUESTION ${String(currentNum).padStart(2, '0')} OF ${String(total).padStart(2, '0')}`;
+            qPrompt.textContent = `${currentNum}. ${q.text}`;
+
+            progressText.textContent = `${currentNum} / ${total}`;
+            progressFill.style.width = `${(currentNum / total) * 100}%`;
+
+            // Populate 4 Options
+            optionsContainer.innerHTML = "";
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((optText, idx) => {
+                const optItem = document.createElement("div");
+                optItem.className = "option-item";
+                optItem.innerHTML = `
+                    <div class="option-left">
+                        <div class="option-badge">${letters[idx]}</div>
+                        <div class="option-text">${optText}</div>
+                    </div>
+                    <div class="radio-dot"></div>
+                `;
+                optItem.addEventListener("click", () => selectOption(idx));
+                optionsContainer.appendChild(optItem);
+            });
+
+            btnNext.innerHTML = (currentIndex === total - 1) ? "Submit Quiz &nbsp;&check;" : "Next Question &nbsp;&rarr;";
+        }
+
+        function selectOption(index) {
+            selectedOption = index;
+            const items = optionsContainer.querySelectorAll(".option-item");
+            items.forEach((item, idx) => {
+                if (idx === index) {
+                    item.classList.add("selected");
+                } else {
+                    item.classList.remove("selected");
+                }
+            });
+        }
+
+        // --- Next / Submit Button ---
+        btnNext.addEventListener("click", () => {
+            if (selectedOption === -1) {
+                showToast("Please select an answer before continuing.");
+                return;
+            }
+
+            // Record answer
+            userAnswers[currentIndex] = selectedOption;
+            if (selectedOption === questions[currentIndex].correct) {
+                score++;
+            }
+
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // --- Show Results ---
+        function showResults() {
+            screenQuiz.style.display = "none";
+            screenResult.style.display = "block";
+
+            resultGreeting.textContent = `Well done, ${playerName}!`;
+            const pct = Math.round((score * 100) / questions.length);
+
+            scoreVal.textContent = `${score} / ${questions.length}`;
+            pctVal.textContent = `${pct}%`;
+
+            statCorrect.textContent = `Correct: ${score}`;
+            statIncorrect.textContent = `Incorrect: ${questions.length - score}`;
+
+            // Performance message (Matches Java Quiz.java logic)
+            if (pct === 100) {
+                resultFeedback.textContent = "Outstanding! Perfect Score! You are a true Java & OOP Master!";
+            } else if (pct >= 80) {
+                resultFeedback.textContent = "Excellent Performance! Strong grasp of Object-Oriented concepts!";
+            } else if (pct >= 60) {
+                resultFeedback.textContent = "Good Effort! Solid foundation, review a few concepts to master them!";
+            } else if (pct >= 40) {
+                resultFeedback.textContent = "Fair Attempt! Keep practicing and reviewing core OOP concepts.";
+            } else {
+                resultFeedback.textContent = "Needs Revision. Don't worry, review the topics and try again!";
+            }
+        }
+
+        // --- Play Again ---
+        btnRestart.addEventListener("click", () => {
+            screenResult.style.display = "none";
+            screenWelcome.style.display = "block";
+            playerNameInput.value = "";
+            playerNameInput.focus();
+        });
+
+        // --- Review Modal ---
+        btnReview.addEventListener("click", () => {
+            reviewList.innerHTML = "";
+            const letters = ['A', 'B', 'C', 'D'];
+
+            questions.forEach((q, idx) => {
+                const userChoice = userAnswers[idx];
+                const isCorrect = (userChoice === q.correct);
+
+                const item = document.createElement("div");
+                item.className = `review-item ${isCorrect ? 'correct' : 'incorrect'}`;
+
+                let answerHTML = '';
+                if (userChoice >= 0) {
+                    answerHTML += `<div class="review-ans user-ans ${isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${letters[userChoice]}. ${q.options[userChoice]}</div>`;
+                } else {
+                    answerHTML += `<div class="review-ans user-ans incorrect">Your Answer: Not answered</div>`;
+                }
+
+                if (!isCorrect) {
+                    answerHTML += `<div class="review-ans correct-ans">Correct Answer: ${letters[q.correct]}. ${q.options[q.correct]}</div>`;
+                }
+
+                item.innerHTML = `
+                    <div class="review-item-header">
+                        <span class="qnum">Question ${idx + 1}</span>
+                        <span class="qstatus ${isCorrect ? 'correct' : 'incorrect'}">${isCorrect ? 'Correct (+1)' : 'Incorrect (0)'}</span>
+                    </div>
+                    <div class="review-item-prompt">${q.text}</div>
+                    ${answerHTML}
+                `;
+                reviewList.appendChild(item);
+            });
+
+            modalReview.classList.add("active");
+        });
+
+        // --- Team Modal ---
+        btnTeam.addEventListener("click", () => {
+            modalTeam.classList.add("active");
+        });
+
+        // Close Modals
+        document.querySelectorAll(".close-modal").forEach(btn => {
+            btn.addEventListener("click", () => {
+                modalTeam.classList.remove("active");
+                modalReview.classList.remove("active");
+            });
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.target.classList.contains("modal-overlay")) {
+                modalTeam.classList.remove("active");
+                modalReview.classList.remove("active");
+            }
+        });
+    </script>
+</body>
+</html>
